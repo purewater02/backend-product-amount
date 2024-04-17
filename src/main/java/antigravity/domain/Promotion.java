@@ -30,8 +30,8 @@ public class Promotion extends DefaultEntity {
   @Column(name = "use_started_at")
   private LocalDate useStartedAt; // 쿠폰 사용가능 시작 기간
 
-  @Column(name = "use_ended_at")
-  private LocalDate useEndedAt; // 쿠폰 사용가능 종료 기간
+  @Column(name = "use_end_at")
+  private LocalDate useEndAt; // 쿠폰 사용가능 종료 기간
 
   public enum PromotionType {
     COUPON,

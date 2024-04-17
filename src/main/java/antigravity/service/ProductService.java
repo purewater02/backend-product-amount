@@ -7,6 +7,7 @@ import antigravity.model.request.ProductInfoRequest;
 import antigravity.model.response.ProductAmountResponse;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class ProductService {
   private final PromotionRepository promotionRepository;
   private final PromotionProductsRepository promotionProductsRepository;
 
-  public ProductAmountResponse getProductAmount(ProductInfoRequest request) {
+  public ProductAmountResponse getProductAmount(ProductInfoRequest request, LocalDate date) {
     Product product =
         productRepository
             .findById(request.getProductId())
@@ -61,12 +62,10 @@ public class ProductService {
 
     // 해당 상품에 적용가능한 프로모션인지 확인
     for (Promotion promotion : promotionList) {
-      isPromotionApplicableForProduct(promotionProductList, promotion);
+      isPromotionApplicableForProduct(promotionProductList, promotion, date);
       // 통과하여 모두 적용가능한 쿠폰이라면 가격 계산 실행
       discountPrice = calculateTotalDiscountAmount(originalPrice, promotion);
     }
-
-    // TODO: 사용가능날짜 제약 추가해야 함.
 
     return ProductAmountResponse.builder()
         .name(product.getName())
@@ -93,13 +92,21 @@ public class ProductService {
   }
 
   private void isPromotionApplicableForProduct(
-      List<PromotionProducts> promotionProductList, Promotion promotion) {
+      List<PromotionProducts> promotionProductList, Promotion promotion, LocalDate date) {
     boolean isApplicable =
         promotionProductList.stream()
             .anyMatch(
                 promotionProduct -> promotionProduct.getPromotionId().equals(promotion.getId()));
+
+    boolean isDateValid =
+        (date.isEqual(promotion.getUseStartedAt()) || date.isAfter(promotion.getUseStartedAt()))
+            && (date.isEqual(promotion.getUseEndAt()) || date.isBefore(promotion.getUseEndAt()));
+
     if (!isApplicable) {
       throw new BadRequestException(ErrorCode.PROMOTION_NOT_APPLICABLE);
+    }
+    if (!isDateValid) {
+      throw new BadRequestException(ErrorCode.DATE_NOT_APPLICABLE);
     }
   }
 }

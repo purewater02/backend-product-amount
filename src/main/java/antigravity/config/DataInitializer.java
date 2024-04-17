@@ -1,6 +1,6 @@
 package antigravity.config;
 
-import antigravity.domain.entity.*;
+import antigravity.domain.*;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
@@ -27,22 +27,22 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
     Promotion promotion1 =
         Promotion.builder()
-            .promotion_type(Promotion.PromotionType.COUPON)
+            .promotionType(Promotion.PromotionType.COUPON)
             .name("30000원 할인쿠폰")
-            .discount_type(Promotion.DiscountType.WON)
-            .discount_value(30000)
-            .use_started_at(LocalDate.of(2022, 11, 1))
-            .use_ended_at(LocalDate.of(2023, 3, 1))
+            .discountType(Promotion.DiscountType.WON)
+            .discountValue(30000)
+            .useStartedAt(LocalDate.of(2022, 11, 1))
+            .useEndedAt(LocalDate.of(2023, 3, 1))
             .build();
 
     Promotion promotion2 =
         Promotion.builder()
-            .promotion_type(Promotion.PromotionType.CODE)
+            .promotionType(Promotion.PromotionType.CODE)
             .name("15% 할인코드")
-            .discount_type(Promotion.DiscountType.PERCENT)
-            .discount_value(15)
-            .use_started_at(LocalDate.of(2022, 11, 1))
-            .use_ended_at(LocalDate.of(2023, 3, 1))
+            .discountType(Promotion.DiscountType.PERCENT)
+            .discountValue(15)
+            .useStartedAt(LocalDate.of(2022, 11, 1))
+            .useEndedAt(LocalDate.of(2023, 3, 1))
             .build();
 
     promotionRepository.save(promotion1);

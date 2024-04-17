@@ -1,4 +1,4 @@
-package antigravity.domain.entity;
+package antigravity.domain;
 
 import jakarta.persistence.Entity;
 import lombok.*;

@@ -9,6 +9,6 @@ import lombok.*;
 @Getter
 @Entity
 public class PromotionProducts extends DefaultEntity {
-  private int promotionId;
-  private int productId;
+  private Long promotionId;
+  private Long productId;
 }

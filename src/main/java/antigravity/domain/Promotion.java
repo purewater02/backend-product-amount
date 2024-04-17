@@ -2,6 +2,8 @@ package antigravity.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import java.time.LocalDate;
 import lombok.*;
 
@@ -12,12 +14,14 @@ import lombok.*;
 @Entity
 public class Promotion extends DefaultEntity {
   @Column(name = "promotion_type")
+  @Enumerated(EnumType.STRING)
   private PromotionType promotionType; // 쿠폰 타입 (쿠폰, 코드)
 
   @Column(name = "name")
   private String name;
 
   @Column(name = "discount_type")
+  @Enumerated(EnumType.STRING)
   private DiscountType discountType; // WON : 금액 할인, PERCENT : %할인
 
   @Column(name = "discount_value")

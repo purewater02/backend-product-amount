@@ -49,10 +49,10 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
     promotionRepository.save(promotion2);
 
     PromotionProducts promotionProducts1 =
-        PromotionProducts.builder().promotionId(1).productId(1).build();
+        PromotionProducts.builder().promotionId(1L).productId(1L).build();
 
     PromotionProducts promotionProducts2 =
-        PromotionProducts.builder().promotionId(2).productId(1).build();
+        PromotionProducts.builder().promotionId(2L).productId(1L).build();
 
     promotionProductsRepository.save(promotionProducts1);
     promotionProductsRepository.save(promotionProducts2);

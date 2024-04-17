@@ -15,25 +15,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/products")
 public class ProductController {
 
-    private final ProductService service;
+  private final ProductService service;
 
-    //상품 가격 추출 api
-    @GetMapping("/amount")
-    public ResponseEntity<ProductAmountResponse> getProductAmount() {
+  // 상품 가격 추출 api
+  @GetMapping("/amount")
+  public ResponseEntity<ProductAmountResponse> getProductAmount() {
 
-        ProductAmountResponse response = service.getProductAmount(getParam());
+    ProductAmountResponse response = service.getProductAmount(getParam());
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
 
-    private ProductInfoRequest getParam() {
-        int[] couponIds = {1, 2};
+  private ProductInfoRequest getParam() {
+    int[] couponIds = {1, 2};
 
-        ProductInfoRequest request = ProductInfoRequest.builder()
-                .productId(1)
-                .couponIds(couponIds)
-                .build();
-
-        return request;
-    }
+    return ProductInfoRequest.builder().productId(1).couponIds(couponIds).build();
+  }
 }

@@ -1,12 +1,15 @@
 package antigravity.domain.entity;
 
-import lombok.Builder;
-import lombok.Data;
+import jakarta.persistence.Entity;
+import lombok.*;
 
-@Data
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class Product {
-    private int id;
-    private String name;
-    private int price;
+@Getter
+@ToString
+@Entity
+public class Product extends DefaultEntity {
+  private String name;
+  private int price;
 }

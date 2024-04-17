@@ -1,11 +1,13 @@
 plugins {
-    id 'org.springframework.boot' version '2.7.5'
-    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
     id 'java'
+    id "org.springframework.boot" version "3.1.2"
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id "com.diffplug.spotless" version "6.16.0"
 }
 
-group = 'com.fittingnote'
+group = 'com.antigravity.fitting-note'
 version = '1.0-SNAPSHOT'
+sourceCompatibility = 17
 
 configurations {
     compileOnly {
@@ -25,9 +27,17 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
-    testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+spotless {
+    java {
+        targetExclude '**/generated/**'
+        googleJavaFormat()
+        removeUnusedImports()
+    }
 }

@@ -5,15 +5,16 @@ import antigravity.model.exception.BadRequestException;
 import antigravity.model.exception.ErrorCode;
 import antigravity.model.request.ProductInfoRequest;
 import antigravity.model.response.ProductAmountResponse;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import antigravity.util.CalculationUtil;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
+@Slf4j
 @Service
 public class ProductService {
   private final ProductRepository productRepository;
@@ -64,31 +65,29 @@ public class ProductService {
     for (Promotion promotion : promotionList) {
       isPromotionApplicableForProduct(promotionProductList, promotion, date);
       // 통과하여 모두 적용가능한 쿠폰이라면 가격 계산 실행
-      discountPrice = calculateTotalDiscountAmount(originalPrice, promotion);
+      discountPrice += calculateTotalDiscountAmount(originalPrice, promotion);
     }
+
+    int finalPrice = CalculationUtil.truncateToThousand(originalPrice - discountPrice);
 
     return ProductAmountResponse.builder()
         .name(product.getName())
         .originPrice(originalPrice)
         .discountPrice(discountPrice)
-        .finalPrice(originalPrice - discountPrice)
+        .finalPrice(finalPrice)
         .build();
   }
 
-  private int calculateTotalDiscountAmount(long originalPrice, Promotion promotion) {
-    long discountAmount = 0L;
+  private int calculateTotalDiscountAmount(int originalPrice, Promotion promotion) {
+    int discountAmount = 0;
     if (promotion.getPromotionType().equals(Promotion.PromotionType.COUPON)) {
       discountAmount += promotion.getDiscountValue();
     } else {
-      BigDecimal originalPriceBd = BigDecimal.valueOf(originalPrice);
-      BigDecimal discountRate = BigDecimal.valueOf(promotion.getDiscountValue());
-      BigDecimal discountValue =
-          originalPriceBd
-              .multiply(discountRate)
-              .divide(BigDecimal.valueOf(100L), RoundingMode.FLOOR); // 부동소수점 연산 손실 방지. 소수점 이하는 버림.
-      discountAmount += discountValue.longValue();
+      // int 형이라 BigDecimal 쓸 필요가 전혀 없었음.
+      int discountValue = originalPrice * promotion.getDiscountValue() / 100;
+      discountAmount += discountValue;
     }
-    return (int) discountAmount; // 제약사항의 상품 가격이 10,000 ~ 10,000,000 까지기 때문에 캐스팅 해도 됨.
+    return discountAmount;
   }
 
   private void isPromotionApplicableForProduct(

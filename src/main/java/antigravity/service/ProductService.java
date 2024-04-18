@@ -6,15 +6,14 @@ import antigravity.model.exception.ErrorCode;
 import antigravity.model.request.ProductInfoRequest;
 import antigravity.model.response.ProductAmountResponse;
 import antigravity.util.CalculationUtil;
+import antigravity.util.ValidationUtil;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
-@Slf4j
 @Service
 public class ProductService {
   private final ProductRepository productRepository;
@@ -22,17 +21,11 @@ public class ProductService {
   private final PromotionProductsRepository promotionProductsRepository;
 
   public ProductAmountResponse getProductAmount(ProductInfoRequest request, LocalDate date) {
-    Product product =
-        productRepository
-            .findById(request.getProductId())
-            .orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));
-
+    Product product = getProductById(request.getProductId());
     int originalPrice = product.getPrice();
 
     // 지정 가격 범위 벗어난 상품 익셉션 처리
-    if (originalPrice < 10000 || originalPrice > 10000000) {
-      throw new BadRequestException(ErrorCode.PRICE_RANGE_NOT_APPLICABLE);
-    }
+    ValidationUtil.isPriceRangeApplicable(originalPrice);
 
     // 쿠폰이 없는 경우
     if (request.getCouponIds().length == 0) {
@@ -47,14 +40,7 @@ public class ProductService {
     // 쿠폰이 1개 이상인 경우
     List<Long> promotionIdList =
         Arrays.stream(request.getCouponIds()).mapToObj(id -> (long) id).toList();
-    List<Promotion> promotionList =
-        promotionIdList.stream()
-            .map(
-                id ->
-                    promotionRepository
-                        .findById(id)
-                        .orElseThrow(() -> new BadRequestException(ErrorCode.COUPON_NOT_FOUND)))
-            .toList();
+    List<Promotion> promotionList = promotionIdList.stream().map(this::getPromotionById).toList();
 
     List<PromotionProducts> promotionProductList =
         promotionProductsRepository.findAllByProductId(product.getId());
@@ -78,6 +64,18 @@ public class ProductService {
         .build();
   }
 
+  public Product getProductById(long productId) {
+    return productRepository
+        .findById(productId)
+        .orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));
+  }
+
+  public Promotion getPromotionById(long promotionId) {
+    return promotionRepository
+        .findById(promotionId)
+        .orElseThrow(() -> new BadRequestException(ErrorCode.COUPON_NOT_FOUND));
+  }
+
   private int calculateTotalDiscountAmount(int originalPrice, Promotion promotion) {
     int discountAmount = 0;
     if (promotion.getPromotionType().equals(Promotion.PromotionType.COUPON)) {
@@ -97,15 +95,10 @@ public class ProductService {
             .anyMatch(
                 promotionProduct -> promotionProduct.getPromotionId().equals(promotion.getId()));
 
-    boolean isDateValid =
-        (date.isEqual(promotion.getUseStartedAt()) || date.isAfter(promotion.getUseStartedAt()))
-            && (date.isEqual(promotion.getUseEndAt()) || date.isBefore(promotion.getUseEndAt()));
-
     if (!isApplicable) {
       throw new BadRequestException(ErrorCode.PROMOTION_NOT_APPLICABLE);
     }
-    if (!isDateValid) {
-      throw new BadRequestException(ErrorCode.DATE_NOT_APPLICABLE);
-    }
+
+    ValidationUtil.isDateValid(date, promotion.getUseStartedAt(), promotion.getUseEndAt());
   }
 }

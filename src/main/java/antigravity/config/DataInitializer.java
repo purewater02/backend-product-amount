@@ -32,7 +32,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
             .discountType(Promotion.DiscountType.WON)
             .discountValue(30000)
             .useStartedAt(LocalDate.of(2022, 11, 1))
-            .useEndedAt(LocalDate.of(2023, 3, 1))
+            .useEndAt(LocalDate.of(2023, 3, 1))
             .build();
 
     Promotion promotion2 =
@@ -42,7 +42,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
             .discountType(Promotion.DiscountType.PERCENT)
             .discountValue(15)
             .useStartedAt(LocalDate.of(2022, 11, 1))
-            .useEndedAt(LocalDate.of(2023, 3, 1))
+            .useEndAt(LocalDate.of(2023, 3, 1))
             .build();
 
     promotionRepository.save(promotion1);
